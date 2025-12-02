@@ -792,8 +792,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
         lineTrack_update();
         
 
-          motor_right.speed_tar = 255+rtY.track_output;
-          motor_left.speed_tar = -255+rtY.track_output;
+          motor_right.speed_tar = 255-rtY.track_output;
+          motor_left.speed_tar = -255-rtY.track_output;
         
         break;
 			case 2:
