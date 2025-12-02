@@ -184,7 +184,7 @@ uint16_t case7_cnt = 0;
 uint16_t tof_cnt = 0;
 
 //for debug, our var is declined. so we set a var to increase the speed to be happy. 
-uint16_t rate = 3;
+uint16_t rate = 4;
 
 float tmp_tar = 0.0f;
 int uart_cnt = 0;
@@ -542,8 +542,8 @@ int main(void)
 
     switch(CAR_STATE){
     case 0:
-        motor_right.speed_tar = 165;
-        motor_left.speed_tar = -165;
+        motor_right.speed_tar = 600;
+        motor_left.speed_tar = -600;
         HAL_Delay(750);
         pid_param.mode = 2;
         ang_tar = 0.0f;
@@ -586,11 +586,11 @@ int main(void)
           
           pid_param.mode = 2;
           //tmp_tar = ang_ori+25.0f; 
-					tmp_tar = 25.0f;
+					tmp_tar = 60.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
           case2_cnt = 0;
-          HAL_Delay(450);
+          HAL_Delay(50);
           pid_param.mode = 1;
             case2_cnt = 0;
             motor_right.speed_tar = 133*rate;
@@ -608,11 +608,11 @@ int main(void)
         }
         break;
     case 4:        //回转（右侧）
-        HAL_Delay(100);
+        HAL_Delay(200);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = 25.0f;
-        if(case4_cnt > 300){
+				ang_tar = 60.0f;
+        if(case4_cnt > 150){
             case4_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(200);
@@ -622,11 +622,11 @@ int main(void)
         if(case5_cnt > 300){
           pid_param.mode = 2;
           //tmp_tar = ang_ori-25.0f; 
-					tmp_tar = -25.0f;
+					tmp_tar = -60.0f;
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
-          HAL_Delay(450);
+          HAL_Delay(50);
           pid_param.mode = 1;
           case5_cnt = 0;
           motor_right.speed_tar = 195*rate; 
@@ -644,11 +644,11 @@ int main(void)
         }
         break;
     case 7:        //回转（左侧）
-        HAL_Delay(100);
+        HAL_Delay(200);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = -25.0f;
-        if(case7_cnt > 300){
+				ang_tar = -60.0f;
+        if(case7_cnt > 150){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(200);
@@ -806,8 +806,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
         lineTrack_update();
         
 
-          motor_right.speed_tar = 900-rtY.track_output*1.5;
-          motor_left.speed_tar = -900-rtY.track_output*1.5;
+          motor_right.speed_tar = 900-rtY.track_output*1.7;
+          motor_left.speed_tar = -900-rtY.track_output*1.7;
         
         break;
 			case 2:
