@@ -191,6 +191,8 @@ int uart_cnt = 0;
 
 int16_t stop_cnt = 0;
 uint16_t stop_code = 0;
+uint16_t high_speed_cnt = 0;
+uint16_t high_speed_code = 0;
 
 uint16_t imu_cnt = 0;
 /* USER CODE END PV */
@@ -238,8 +240,7 @@ void PID_updParam(PID_t *pid){
 void PID_updInput(){
   rtU.ctrl_mode = pid_param.mode;
   rtU.angle_tar = ang_tar;
-  //rtU.angle_real = imu_data.yaw;
-	rtU.angle_real = 0;
+  rtU.angle_real = imu_data.yaw;
   rtU.leftRpm_real = motor_left.speed_real;
   rtU.rightRpm_real = motor_right.speed_real;
   rtU.leftRpm_tar = motor_left.speed_tar;
@@ -367,46 +368,46 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1){        //PA11
     if(track_state[7]<20)track_state[7]+=2.4;
   }else{
-    if(track_state[7]>0)track_state[7]-=1;
+    if(track_state[7]>0)track_state[7]=0;
   }
   if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == 1){  //PA12
     if(track_state[6]<20)track_state[6]+=2.1;
   }else{
-    if(track_state[6]>0)track_state[6]-=1.2;
+    if(track_state[6]>0)track_state[6]=0;
   }
   if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1){  //PA15
     if(track_state[5]<20)track_state[5]+=2;
   }else{
-    if(track_state[5]>0)track_state[5]--;
+    if(track_state[5]>0)track_state[5]=0;
   }
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1){   //PB3
     if(track_state[4]<20)track_state[4]+=2;
   }else{
-    if(track_state[4]>0)track_state[4]-=1.3;
+    if(track_state[4]>0)track_state[4]=0;
   }
 
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4) == 1){   //PB4
     if(track_state[3]<20)track_state[3]+=2;
   }else{
-    if(track_state[3]>0)track_state[3]-=1.3;
+    if(track_state[3]>0)track_state[3]=0;
   }
 
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == 1){   //PB5
     if(track_state[2]<20)track_state[2]+=2;
   }else{
-    if(track_state[2]>0)track_state[2]--;
+    if(track_state[2]>0)track_state[2]=0;
   }
     
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1) == 1){   //PB1
     if(track_state[1]<20)track_state[1]+=2.1;
   }else{
-    if(track_state[1]>0)track_state[1]-=1.2;
+    if(track_state[1]>0)track_state[1]=0;
   }
     
   if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){   //PB0
     if(track_state[0]<20)track_state[0]+=2.4;
   }else{
-    if(track_state[0]>0)track_state[0]-=1;
+    if(track_state[0]>0)track_state[0]=0;
   }
   
   if(track_state[0] && track_state[1] && track_state[2] && track_state[3] && track_state[4] && track_state[5] && track_state[6] && track_state[7]){
@@ -417,10 +418,23 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   }else{
     if(stop_cnt>0)stop_cnt -= 1;
   }
+	
+	if(!track_state[0] && !track_state[1] && !track_state[2] && !track_state[3] && !track_state[4] && !track_state[5] && !track_state[6] && !track_state[7]) 
+	{
+		high_speed_cnt++;
+	}else{
+		if(high_speed_cnt>0) high_speed_cnt -= 1;
+	}
+	
 //  
-  if(stop_cnt >= 45 && CAR_STATE == 1){
+  if(stop_cnt >= 30 && CAR_STATE == 1){
     stop_cnt = 0;
     stop_code ++;
+  }
+	
+	if(high_speed_cnt >= 45 && CAR_STATE == 1 && high_speed_code == 1){
+    high_speed_cnt = 0;
+    high_speed_code ++;
   }
 
 //  if(stop_flag){
@@ -586,8 +600,7 @@ int main(void)
         if(case2_cnt > 300){
           
           pid_param.mode = 2;
-          //tmp_tar = ang_ori+25.0f; 
-					tmp_tar = 50.0f;
+          tmp_tar = ang_ori+50.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
           case2_cnt = 0;
@@ -598,32 +611,39 @@ int main(void)
             motor_left.speed_tar = -195*rate;
             CAR_STATE = 3;
         }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
+        }
         //if(case2_cnt > 450){
             
         //}
         break;
     case 3:        //绕障（右侧）
-        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1){ 
+        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){ 
             CAR_STATE = 4;
             case3_cnt = 0;
+        }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
         }
         break;
     case 4:        //回转（右侧）
         HAL_Delay(200);
         pid_param.mode = 2;
-        //ang_tar = ang_ori;
-				ang_tar = 50.0f;
-        if(case4_cnt > 150){
+        ang_tar = ang_ori;
+        if(case4_cnt > 300){
             case4_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
+        }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
         }
         break;
     case 5:        //左侧转向
         if(case5_cnt > 300){
           pid_param.mode = 2;
-          //tmp_tar = ang_ori-25.0f; 
-					tmp_tar = -50.0f;
+          tmp_tar = ang_ori-50.0f;
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
@@ -634,25 +654,33 @@ int main(void)
           motor_left.speed_tar = -133*rate;
           CAR_STATE = 6;
         }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
+        }
         //if(case5_cnt > 450){
             
         //}
         break;
     case 6:        //绕障（左侧）
-        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){ 
+        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1){ 
             CAR_STATE = 7;
             case6_cnt = 0;
+        }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
         }
         break;
     case 7:        //回转（左侧）
         HAL_Delay(200);
         pid_param.mode = 2;
-        //ang_tar = ang_ori;
-				ang_tar = -50.0f;
-        if(case7_cnt > 150){
+        ang_tar = ang_ori;
+        if(case7_cnt > 300){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
+        }
+				for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
         }
         break;
     case 8:
@@ -666,24 +694,25 @@ int main(void)
         pid_param.mode = 2;
         //tmp_tar = ang_ori-90.0f;  
         //if(tmp_tar < 0)tmp_tar+=360;
-        ang_tar = 90.0f;
+        ang_tar = 80.0f;
         HAL_Delay(600);
         //CAR_STATE = 9;
         pid_param.mode = 1;
-        motor_right.speed_tar = 120;
-        motor_left.speed_tar = -120;
-        HAL_Delay(1100);
+        motor_right.speed_tar = 600;
+        motor_left.speed_tar = -600;
+        HAL_Delay(750);
         CAR_STATE = 1;
+				high_speed_code += 1;
         break;
     case 9:
-        motor_right.speed_tar = 150;
-        motor_left.speed_tar = -150;
-        HAL_Delay(1200);
+        motor_right.speed_tar = 600;
+        motor_left.speed_tar = -600;
+        HAL_Delay(750);
         motor_right.speed_tar = 0;
         motor_left.speed_tar = 0;
         HAL_Delay(200);
         pid_param.mode = 2;
-        ang_tar = 0.0f;
+        ang_tar = 10.0f;
         HAL_Delay(800);
         pid_param.mode = 1;
         CAR_STATE = 1;
@@ -779,17 +808,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim->Instance == TIM4){
     if(stop_code == 2 ){
-//      if(imu_data.yaw < 20 ||  imu_data.yaw > 340){
+      if(imu_data.yaw < 20 ||  imu_data.yaw > 340){
         CAR_STATE = 0;
         stop_code = 1;
-//      }else{
-//        CAR_STATE = 9;
-//        stop_code = 1;
-//      }
+      }else{
+        stop_code = 1;
+      }
     }
-//    if(stop_code == 3){
-//      CAR_STATE = 0;
-//    }
+		if(high_speed_code == 2){
+			high_speed_code = 0;
+			CAR_STATE = 9;
+		}
 		switch(CAR_STATE){
 			case 0:
 				case2_cnt = 0;
@@ -809,8 +838,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
           }
         }
         pid_param.mode = 1;
-        // ang_real = imu_data.yaw;
-				ang_real = 0;
+        ang_real = imu_data.yaw;
 				ang_ori = ang_real;
         lineTrack_update();
         
