@@ -1,4 +1,5 @@
 gc/vl53l0x.o: ..\User\VL53L0X_HAL\Src\VL53L0X.c \
+  E:\MyResources\2025_fall\keil_v5\ARM\ARMCLANG\Bin\..\include\stdint.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal.h \
   ..\Core\Inc\stm32f1xx_hal_conf.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h \
@@ -6,8 +7,14 @@ gc/vl53l0x.o: ..\User\VL53L0X_HAL\Src\VL53L0X.c \
   ..\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xb.h \
   ..\Drivers\CMSIS\Include\core_cm3.h \
+  ..\Drivers\CMSIS\Include\cmsis_version.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h \
+  E:\MyResources\2025_fall\keil_v5\ARM\ARMCLANG\Bin\..\include\arm_compat.h \
+  E:\MyResources\2025_fall\keil_v5\ARM\ARMCLANG\Bin\..\include\arm_acle.h \
   ..\Drivers\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
+  E:\MyResources\2025_fall\keil_v5\ARM\ARMCLANG\Bin\..\include\stddef.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc_ex.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio_ex.h \
@@ -22,4 +29,5 @@ gc/vl53l0x.o: ..\User\VL53L0X_HAL\Src\VL53L0X.c \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim_ex.h \
   ..\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_uart.h \
+  E:\MyResources\2025_fall\keil_v5\ARM\ARMCLANG\Bin\..\include\string.h \
   ..\User\VL53L0X_HAL\Inc\VL53L0X.h

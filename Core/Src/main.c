@@ -89,7 +89,7 @@ typedef struct{
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define MOTOR_CPR 1040
+#define MOTOR_CPR 40000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -238,7 +238,8 @@ void PID_updParam(PID_t *pid){
 void PID_updInput(){
   rtU.ctrl_mode = pid_param.mode;
   rtU.angle_tar = ang_tar;
-  rtU.angle_real = imu_data.yaw;
+  //rtU.angle_real = imu_data.yaw;
+	rtU.angle_real = 0;
   rtU.leftRpm_real = motor_left.speed_real;
   rtU.rightRpm_real = motor_right.speed_real;
   rtU.leftRpm_tar = motor_left.speed_tar;
@@ -586,7 +587,7 @@ int main(void)
           
           pid_param.mode = 2;
           //tmp_tar = ang_ori+25.0f; 
-					tmp_tar = 60.0f;
+					tmp_tar = 50.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
           case2_cnt = 0;
@@ -611,18 +612,18 @@ int main(void)
         HAL_Delay(200);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = 60.0f;
+				ang_tar = 50.0f;
         if(case4_cnt > 150){
             case4_cnt = 0;
             CAR_STATE = 1;
-						HAL_Delay(200);
+						HAL_Delay(100);
         }
         break;
     case 5:        //左侧转向
         if(case5_cnt > 300){
           pid_param.mode = 2;
           //tmp_tar = ang_ori-25.0f; 
-					tmp_tar = -60.0f;
+					tmp_tar = -50.0f;
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
@@ -647,11 +648,11 @@ int main(void)
         HAL_Delay(200);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = -60.0f;
+				ang_tar = -50.0f;
         if(case7_cnt > 150){
             case7_cnt = 0;
             CAR_STATE = 1;
-						HAL_Delay(200);
+						HAL_Delay(100);
         }
         break;
     case 8:
@@ -796,18 +797,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
       case 1:
         if(imu_data.yaw > 80 && imu_data.yaw < 100){
           imu_cnt = 2;
+					for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
+          }
         }
         if(imu_cnt == 2 && imu_data.yaw > 160 && imu_data.yaw < 200){
           imu_cnt = 3;
+          // 第一次imu_cnt=3时清空uart2_rx_buffer，避免OpenMV误检测数据
+          for(int i = 0; i < 8; i++){
+            uart2_rx_buffer[i] = 0;
+          }
         }
         pid_param.mode = 1;
-        ang_real = imu_data.yaw;
+        // ang_real = imu_data.yaw;
+				ang_real = 0;
 				ang_ori = ang_real;
         lineTrack_update();
         
 
-          motor_right.speed_tar = 900-rtY.track_output*1.7;
-          motor_left.speed_tar = -900-rtY.track_output*1.7;
+          motor_right.speed_tar = 900+rtY.track_output*1.7;
+          motor_left.speed_tar = -900+rtY.track_output*1.7;
         
         break;
 			case 2:
