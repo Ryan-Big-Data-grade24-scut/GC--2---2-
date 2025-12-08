@@ -619,7 +619,7 @@ int main(void)
         //}
         break;
     case 3:        //绕障（右侧）
-        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){ 
+        if(case3_cnt > 500 && (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1 || HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1) == 1)){ 
             CAR_STATE = 4;
             case3_cnt = 0;
         }
@@ -662,7 +662,7 @@ int main(void)
         //}
         break;
     case 6:        //绕障（左侧）
-        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1){ 
+        if(case6_cnt > 500 && (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1 || HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == 1)){ 
             CAR_STATE = 7;
             case6_cnt = 0;
         }
