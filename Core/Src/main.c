@@ -366,48 +366,48 @@ void motor_updPID(){
 
 
 void lineTrack_update(){   //从上到下为编�?8�?1
-  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 1){        //PA11
+  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 0){        //PA11
     if(track_state[7]<20)track_state[7]+=2.4;
   }else{
     if(track_state[7]>0)track_state[7]=0;
   }
     // track_state[7] = 20;
-  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_12) == 1){  //PA12
+  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == 0){  //PA12
     if(track_state[6]<20)track_state[6]+=2.1;
   }else{
     if(track_state[6]>0)track_state[6]=0;
   }
 	// track_state[6] = 20;
-  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1){  //PA15
+  if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 0){  //PA15
     if(track_state[5]<20)track_state[5]+=2;
   }else{
     if(track_state[5]>0)track_state[5]=0;
   }
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 1){   //PB3
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3) == 0){   //PB3
     if(track_state[4]<20)track_state[4]+=2;
   }else{
     if(track_state[4]>0)track_state[4]=0;
   }
 
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4) == 1){   //PB4
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4) == 0){   //PB4
     if(track_state[3]<20)track_state[3]+=2;
   }else{
     if(track_state[3]>0)track_state[3]=0;
   }
 
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == 1){   //PB5
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_5) == 0){   //PB5
     if(track_state[2]<20)track_state[2]+=2;
   }else{
     if(track_state[2]>0)track_state[2]=0;
   }
     
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1) == 1){   //PB1
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1) == 0){   //PB1
     if(track_state[1]<20)track_state[1]+=2.1;
   }else{
     if(track_state[1]>0)track_state[1]=0;
   }
     
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){   //PB0
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 0){   //PB0
     if(track_state[0]<20)track_state[0]+=2.4;
   }else{
     if(track_state[0]>0)track_state[0]=0;
@@ -418,21 +418,23 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   //    if(stop_flag == 0){
   //      stop_flag = 1;
   //    }
-    stop_cnt++;
-  }else{
-    if(stop_cnt>0)stop_cnt -= 1;
-  }
-  
-  if(!track_state[0] && !track_state[1] && !track_state[2] && !track_state[3] && !track_state[4] && !track_state[5] && !track_state[6] && !track_state[7]) 
-  {
-    high_speed_cnt++;
-  }else{
+		high_speed_cnt++;
+	}else{
     if(high_speed_cnt>0) high_speed_cnt -= 1;
   }
   if(stop_cnt >= 25 && CAR_STATE == 1){
     stop_cnt = 0;
     stop_code ++;
   }
+  
+  if(!track_state[0] && !track_state[1] && !track_state[2] && !track_state[3] && !track_state[4] && !track_state[5] && !track_state[6] && !track_state[7]) 
+  {
+    
+	  stop_cnt++;
+  }else{
+    if(stop_cnt>0)stop_cnt -= 1;
+  }
+  
 	
 	if(high_speed_cnt >= 45 && CAR_STATE == 1 && high_speed_code == 1){
     high_speed_cnt = 0;
@@ -470,7 +472,6 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   * @retval int
   */
 int main(void)
-
 {
 
   /* USER CODE BEGIN 1 */
@@ -622,7 +623,7 @@ int main(void)
         //}
         break;
     case 3:        //绕障（右侧）
-        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15) == 1){ 
+        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 0){ 
             CAR_STATE = 4;
             case3_cnt = 0;
         }
@@ -631,11 +632,11 @@ int main(void)
         }
         break;
     case 4:        //回转（右侧）
-        HAL_Delay(200);
+        HAL_Delay(100);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
 				ang_tar = 50.0f;
-        if(case4_cnt > 150){
+        if(case4_cnt > 300){
             case4_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
@@ -667,7 +668,7 @@ int main(void)
         //}
         break;
     case 6:        //绕障（左侧）
-        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 1){ 
+        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 0){ 
             CAR_STATE = 7;
             case6_cnt = 0;
         }
@@ -676,11 +677,11 @@ int main(void)
         }
         break;
     case 7:        //回转（左侧）
-        HAL_Delay(200);
+        HAL_Delay(100);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
 				ang_tar = -50.0f;
-        if(case7_cnt > 150){
+        if(case7_cnt > 300){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
@@ -851,8 +852,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
         lineTrack_update();
         
 
-          motor_right.speed_tar = 900+rtY.track_output*1.7;
-          motor_left.speed_tar = -900+rtY.track_output*1.7;
+          motor_right.speed_tar = 900+rtY.track_output*1.3;
+          motor_left.speed_tar = -900+rtY.track_output*1.3;
         
         break;
 			case 2:
