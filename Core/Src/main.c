@@ -192,7 +192,10 @@ int uart_cnt = 0;
 int16_t stop_cnt = 0;
 uint16_t stop_code = 0;
 uint16_t high_speed_cnt = 0;
+uint16_t cnt_max = 0;
 uint16_t high_speed_code = 0;
+
+uint16_t test_cnt = 0;
 
 uint16_t imu_cnt = 0;
 /* USER CODE END PV */
@@ -414,7 +417,23 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   }
 	
   
-  if(track_state[0] && track_state[1] && track_state[2] && track_state[3] && track_state[4] && track_state[5] && track_state[6] && track_state[7]){
+  if(track_state[0] && track_state[1] && track_state[2] && track_state[3] && track_state[4] && track_state[5] && track_state[6] && track_state[7])
+  {
+    
+	  stop_cnt++;
+		if (stop_cnt > cnt_max){
+			cnt_max = stop_cnt;
+		}
+  }else{
+    if(stop_cnt>0)stop_cnt -= 1;
+  }
+  
+  if(stop_cnt >= 26 && CAR_STATE == 1){
+    stop_cnt = 0;
+    stop_code ++;
+  }
+  
+  if(!track_state[0] && !track_state[1] && !track_state[2] && !track_state[3] && !track_state[4] && !track_state[5] && !track_state[6] && !track_state[7]){
   //    if(stop_flag == 0){
   //      stop_flag = 1;
   //    }
@@ -422,19 +441,7 @@ void lineTrack_update(){   //从上到下为编�?8�?1
 	}else{
     if(high_speed_cnt>0) high_speed_cnt -= 1;
   }
-  if(stop_cnt >= 25 && CAR_STATE == 1){
-    stop_cnt = 0;
-    stop_code ++;
-  }
-  
-  if(!track_state[0] && !track_state[1] && !track_state[2] && !track_state[3] && !track_state[4] && !track_state[5] && !track_state[6] && !track_state[7]) 
-  {
-    
-	  stop_cnt++;
-  }else{
-    if(stop_cnt>0)stop_cnt -= 1;
-  }
-  
+	
 	
 	if(high_speed_cnt >= 45 && CAR_STATE == 1 && high_speed_code == 1){
     high_speed_cnt = 0;
@@ -572,7 +579,7 @@ int main(void)
     case 1:        //直行    
         
     
-        if((tof_dis2+tof_dis2_l+tof_dis2_ll)/3 <= 260){
+        if((tof_dis2+tof_dis2_l+tof_dis2_ll)/3 <= 200){
             motor_right.speed_tar = 135;
             motor_left.speed_tar = -135;
             PID_updInput(); 
@@ -585,7 +592,7 @@ int main(void)
             break;
         }
         
-        if((tof_dis1+tof_dis1_l+tof_dis1_ll)/3 <= 260){  //970 210
+        if((tof_dis1+tof_dis1_l+tof_dis1_ll)/3 <= 200){  //970 210
             
             motor_right.speed_tar = 135;
             motor_left.speed_tar = -135;
@@ -598,6 +605,30 @@ int main(void)
               CAR_STATE = 5;
             break;
         }
+//				if(test_cnt%1000 == 150){
+//					//            
+//            motor_right.speed_tar = 135;
+//            motor_left.speed_tar = -135;
+//            PID_updInput();
+////            HAL_Delay(300);
+////            motor_right.speed_tar = 0;
+////            motor_left.speed_tar = 0;
+////            HAL_Delay(300);
+//            //CAR_STATE = 5;
+//              CAR_STATE = 2;
+//				}
+//				if(test_cnt%1000 == 650){
+//	          motor_right.speed_tar = 135;
+//            motor_left.speed_tar = -135;
+//            PID_updInput(); 
+////            HAL_Delay(300);
+////            motor_right.speed_tar = 0;
+////            motor_left.speed_tar = 0;
+////            HAL_Delay(300);
+//            //CAR_STATE = 2;
+//            CAR_STATE = 5;
+//				}
+//				test_cnt ++;
         break;
     case 2:
         if(case2_cnt > 300){
@@ -607,12 +638,13 @@ int main(void)
 					tmp_tar = 50.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
+
           case2_cnt = 0;
           HAL_Delay(50);
           pid_param.mode = 1;
             case2_cnt = 0;
             motor_right.speed_tar = 133*rate;
-            motor_left.speed_tar = -195*rate;
+            motor_left.speed_tar = -340*rate;
             CAR_STATE = 3;
         }
 				for(int i = 0; i < 8; i++){
@@ -623,7 +655,7 @@ int main(void)
         //}
         break;
     case 3:        //绕障（右侧）
-        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_11) == 0){ 
+        if(case3_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 0){ 
             CAR_STATE = 4;
             case3_cnt = 0;
         }
@@ -649,11 +681,11 @@ int main(void)
         if(case5_cnt > 300){
           pid_param.mode = 2;
           //tmp_tar = ang_ori-25.0f; 
-					tmp_tar = -50.0f;
+					tmp_tar = -90.0f;
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
-          HAL_Delay(50);
+          HAL_Delay(250);
           pid_param.mode = 1;
           case5_cnt = 0;
           motor_right.speed_tar = 195*rate; 
@@ -668,7 +700,7 @@ int main(void)
         //}
         break;
     case 6:        //绕障（左侧）
-        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 0){ 
+        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == 0){ 
             CAR_STATE = 7;
             case6_cnt = 0;
         }
@@ -677,11 +709,11 @@ int main(void)
         }
         break;
     case 7:        //回转（左侧）
-        HAL_Delay(100);
+        HAL_Delay(300);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = -50.0f;
-        if(case7_cnt > 300){
+				ang_tar = -90.0f;
+        if(case7_cnt > 400){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
@@ -694,7 +726,7 @@ int main(void)
 				ang_real = imu_data.yaw;
         pid_param.mode = 1;
         motor_right.speed_tar = 900;
-        motor_left.speed_tar = -900;
+        motor_left.speed_tar = -1100;
         HAL_Delay(200);
         motor_right.speed_tar = 0;
         motor_left.speed_tar = 0;
@@ -707,7 +739,8 @@ int main(void)
         //CAR_STATE = 9;
         pid_param.mode = 1;
         motor_right.speed_tar = 900;
-        motor_left.speed_tar = -900;
+		    //motor_left.speed_tar = -900;
+        motor_left.speed_tar = -1100;
         HAL_Delay(700);
         CAR_STATE = 1;
 				high_speed_code += 1;
@@ -715,13 +748,13 @@ int main(void)
     case 9:
 				ang_real = imu_data.yaw;
         motor_right.speed_tar = 600;
-        motor_left.speed_tar = -600;
-        HAL_Delay(800);
+        motor_left.speed_tar = -700;
+        HAL_Delay(1000);
         motor_right.speed_tar = 0;
         motor_left.speed_tar = 0;
         HAL_Delay(200);
         pid_param.mode = 2;
-        ang_tar = 10.0f;
+        ang_tar = -10.0f;
         HAL_Delay(800);
         pid_param.mode = 1;
         CAR_STATE = 1;
