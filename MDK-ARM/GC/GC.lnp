@@ -27,7 +27,7 @@
 "gc\gc_pid.o"
 "gc\gc_pid_data.o"
 "gc\vl6180x.o"
---library_type=microlib --strict --scatter "GC\GC.sct"
+--strict --scatter "GC\GC.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "GC.map" -o GC\GC.axf

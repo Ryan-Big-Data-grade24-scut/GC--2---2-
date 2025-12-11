@@ -428,7 +428,7 @@ void lineTrack_update(){   //从上到下为编�?8�?1
     if(stop_cnt>0)stop_cnt -= 1;
   }
   
-  if(stop_cnt >= 26 && CAR_STATE == 1){
+  if(stop_cnt >= 28 && CAR_STATE == 1){
     stop_cnt = 0;
     stop_code ++;
   }
@@ -635,7 +635,7 @@ int main(void)
           
           pid_param.mode = 2;
           //tmp_tar = ang_ori+25.0f; 
-					tmp_tar = 50.0f;
+					tmp_tar = 60.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
 
@@ -644,7 +644,7 @@ int main(void)
           pid_param.mode = 1;
             case2_cnt = 0;
             motor_right.speed_tar = 133*rate;
-            motor_left.speed_tar = -340*rate;
+            motor_left.speed_tar = -350*rate;
             CAR_STATE = 3;
         }
 				for(int i = 0; i < 8; i++){
@@ -667,7 +667,7 @@ int main(void)
         HAL_Delay(100);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
-				ang_tar = 50.0f;
+				ang_tar = 40.0f;
         if(case4_cnt > 300){
             case4_cnt = 0;
             CAR_STATE = 1;
@@ -685,10 +685,10 @@ int main(void)
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
-          HAL_Delay(250);
+          HAL_Delay(100);
           pid_param.mode = 1;
           case5_cnt = 0;
-          motor_right.speed_tar = 195*rate; 
+          motor_right.speed_tar = 200*rate; 
           motor_left.speed_tar = -133*rate;
           CAR_STATE = 6;
         }
@@ -700,7 +700,7 @@ int main(void)
         //}
         break;
     case 6:        //绕障（左侧）
-        if(case6_cnt > 500 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == 0){ 
+        if(case6_cnt > 400 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_10) == 0){ 
             CAR_STATE = 7;
             case6_cnt = 0;
         }
@@ -709,11 +709,11 @@ int main(void)
         }
         break;
     case 7:        //回转（左侧）
-        HAL_Delay(300);
+        HAL_Delay(125);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
 				ang_tar = -90.0f;
-        if(case7_cnt > 400){
+        if(case7_cnt > 200){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
