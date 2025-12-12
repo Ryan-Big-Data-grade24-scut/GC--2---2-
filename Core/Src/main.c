@@ -174,6 +174,7 @@ int tim4_cnt = 0;
 
 int8_t CAR_STATE = 1;
 
+uint16_t case1_cnt = 0;
 uint16_t case2_cnt = 0;
 uint16_t case3_cnt = 0;
 uint16_t case4_cnt = 0;
@@ -417,7 +418,7 @@ void lineTrack_update(){   //从上到下为编�?8�?1
   }
 	
   
-  if(track_state[0] && track_state[1] && track_state[2] && track_state[3] && track_state[4] && track_state[5] && track_state[6] && track_state[7])
+  if(track_state[0] && track_state[1] && track_state[2] && track_state[3] && track_state[4] && track_state[5] && track_state[6] && track_state[7] && case1_cnt>5000)
   {
     
 	  stop_cnt++;
@@ -635,7 +636,7 @@ int main(void)
           
           pid_param.mode = 2;
           //tmp_tar = ang_ori+25.0f; 
-					tmp_tar = 60.0f;
+					tmp_tar = 50.0f;
           if(tmp_tar > 360)tmp_tar-=360;
           ang_tar = tmp_tar;
 
@@ -644,7 +645,7 @@ int main(void)
           pid_param.mode = 1;
             case2_cnt = 0;
             motor_right.speed_tar = 133*rate;
-            motor_left.speed_tar = -350*rate;
+            motor_left.speed_tar = -370*rate;
             CAR_STATE = 3;
         }
 				for(int i = 0; i < 8; i++){
@@ -664,11 +665,11 @@ int main(void)
         }
         break;
     case 4:        //回转（右侧）
-        HAL_Delay(100);
+        HAL_Delay(145);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
 				ang_tar = 40.0f;
-        if(case4_cnt > 300){
+        if(case4_cnt > 320){
             case4_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
@@ -685,7 +686,7 @@ int main(void)
           if(tmp_tar < 0)tmp_tar+=360;
           ang_tar = tmp_tar;
           case5_cnt = 0;
-          HAL_Delay(100);
+          HAL_Delay(150);
           pid_param.mode = 1;
           case5_cnt = 0;
           motor_right.speed_tar = 200*rate; 
@@ -709,11 +710,11 @@ int main(void)
         }
         break;
     case 7:        //回转（左侧）
-        HAL_Delay(125);
+        HAL_Delay(145);
         pid_param.mode = 2;
         //ang_tar = ang_ori;
 				ang_tar = -90.0f;
-        if(case7_cnt > 200){
+        if(case7_cnt > 165){
             case7_cnt = 0;
             CAR_STATE = 1;
 						HAL_Delay(100);
@@ -849,12 +850,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 }
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim->Instance == TIM4){
-    if(stop_code == 2 ){
+    if(stop_code == 1 ){
       if(imu_data.yaw < 20 ||  imu_data.yaw > 340){
         CAR_STATE = 0;
-        stop_code = 1;
+        stop_code = 0;
       }else{
-        stop_code = 1;
+        stop_code = 0;
       }
     }
 		if(high_speed_code == 2){
@@ -866,6 +867,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 				case2_cnt = 0;
 				break;
       case 1:
+				case1_cnt++;
         if(imu_data.yaw > 80 && imu_data.yaw < 100){
           imu_cnt = 2;
 					for(int i = 0; i < 8; i++){
@@ -886,7 +888,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
         
 
           motor_right.speed_tar = 900+rtY.track_output*1.3;
-          motor_left.speed_tar = -900+rtY.track_output*1.3;
+          motor_left.speed_tar = -1000+rtY.track_output*1.3;
         
         break;
 			case 2:
